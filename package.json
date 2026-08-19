@@ -1,0 +1,10 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Personal portfolio — vanilla HTML, CSS, and JS",
+  "scripts": {
+    "start": "npx --yes serve . -p 3000",
+    "dev": "npm start"
+  }
+}
