@@ -1,55 +1,85 @@
 function isPlaceholder(value) {
-  return !value || value.startsWith("#TODO")
+  return !value || (typeof value === "string" && value.startsWith("#TODO"))
 }
 
-function getImages(item) {
+function normalizeMedia(entry) {
+  if (typeof entry === "string") {
+    return { type: "image", src: entry }
+  }
+  return entry
+}
+
+function getMedia(item) {
   if (item.images?.length) {
-    return item.images.filter(img => !isPlaceholder(img))
+    return item.images.filter(entry => !isPlaceholder(entry)).map(normalizeMedia)
   }
   if (item.imageUrl && !isPlaceholder(item.imageUrl)) {
-    return [item.imageUrl]
+    return [normalizeMedia(item.imageUrl)]
   }
   return []
 }
 
 const AUTOPLAY_INTERVAL_MS = 3000
 
-export function renderImageCarousel(images, carouselId) {
-  const validImages = images.filter(img => !isPlaceholder(img))
+export function renderImageCarousel(media, carouselId) {
+  const validMedia = media.filter(item => item?.src && !isPlaceholder(item.src))
 
-  if (!validImages.length) {
+  if (!validMedia.length) {
     return `<div class="image-carousel image-carousel--empty">#TODO: add images</div>`
   }
 
-  const slides = validImages
-    .map(
-      (src, index) => `
-        <img
-          class="carousel-slide"
-          src="${src}"
-          alt="Slide ${index + 1}"
-          loading="${index === 0 ? "eager" : "lazy"}"
-        />
+  const slides = validMedia
+    .map((item, index) => {
+      if (item.type === "video") {
+        return `
+          <div class="carousel-slide carousel-slide--video" data-media-type="video">
+            <video
+              class="carousel-slide__media"
+              aria-label="${item.title || `Video ${index + 1}`}"
+              autoplay
+              muted
+              loop
+              playsinline
+              controls
+              preload="metadata"
+            >
+              <source src="${item.src}" type="video/mp4" />
+              Your browser does not support embedded video.
+            </video>
+          </div>
+        `
+      }
+
+      return `
+        <div class="carousel-slide" data-media-type="image">
+          <img
+            class="carousel-slide__media"
+            src="${item.src}"
+            alt="${item.alt || `Slide ${index + 1}`}"
+            loading="${index === 0 ? "eager" : "lazy"}"
+          />
+          ${item.note ? `<span class="carousel-annotation">${item.note}</span>` : ""}
+        </div>
       `
-    )
+    })
     .join("")
 
-  const showNav = validImages.length > 1
+  const showNav = validMedia.length > 1
 
   return `
     <div class="image-carousel" data-carousel-id="${carouselId}">
-      ${showNav ? `<button class="carousel-nav carousel-nav--prev" type="button" aria-label="Previous image">‹</button>` : ""}
+      ${showNav ? `<button class="carousel-nav carousel-nav--prev" type="button" aria-label="Previous media">‹</button>` : ""}
       <div class="carousel-viewport">
         <div class="carousel-track">${slides}</div>
       </div>
-      ${showNav ? `<button class="carousel-nav carousel-nav--next" type="button" aria-label="Next image">›</button>` : ""}
-      ${showNav ? `<div class="carousel-counter"><span class="carousel-counter__current">1</span> / ${validImages.length}</div>` : ""}
+      ${showNav ? `<button class="carousel-nav carousel-nav--next" type="button" aria-label="Next media">›</button>` : ""}
+      ${showNav ? `<div class="carousel-counter"><span class="carousel-counter__current">1</span> / ${validMedia.length}</div>` : ""}
     </div>
   `
 }
 
 export function getItemImages(item) {
-  return getImages(item)
+  return getMedia(item)
 }
 
 function prefersReducedMotion() {
@@ -68,10 +98,16 @@ export function wireImageCarousels(root = document) {
     let index = 0
     let timer = null
 
-    const goTo = nextIndex => {
-      index = (nextIndex + slides.length) % slides.length
-      track.style.transform = `translateX(-${index * 100}%)`
-      if (counter) counter.textContent = String(index + 1)
+    const syncVideoPlayback = () => {
+      slides.forEach((slide, slideIndex) => {
+        const video = slide.querySelector("video")
+        if (!video) return
+        if (slideIndex === index) {
+          video.play().catch(() => {})
+        } else {
+          video.pause()
+        }
+      })
     }
 
     const stopAutoplay = () => {
@@ -81,9 +117,18 @@ export function wireImageCarousels(root = document) {
       }
     }
 
+    const goTo = nextIndex => {
+      index = (nextIndex + slides.length) % slides.length
+      track.style.transform = `translateX(-${index * 100}%)`
+      if (counter) counter.textContent = String(index + 1)
+      syncVideoPlayback()
+      if (slides[index]?.dataset.mediaType === "video") stopAutoplay()
+    }
+
     const startAutoplay = () => {
       stopAutoplay()
       if (prefersReducedMotion()) return
+      if (slides[index]?.dataset.mediaType === "video") return
       timer = setInterval(() => goTo(index + 1), AUTOPLAY_INTERVAL_MS)
     }
 
@@ -101,6 +146,7 @@ export function wireImageCarousels(root = document) {
     carousel.addEventListener("focusin", stopAutoplay)
     carousel.addEventListener("focusout", startAutoplay)
 
+    syncVideoPlayback()
     startAutoplay()
   })
 }

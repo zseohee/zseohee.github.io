@@ -24,7 +24,10 @@ export function renderNavbar({ nav }, options = {}) {
           <span class="nav-toggle__bar"></span>
         </button>
         <div class="right-nav" id="nav-menu" data-nav-menu>
-          <div class="links-wrapper">${sectionLinks}</div>
+          <div class="links-wrapper">
+            <a class="nav-link nav-resume-mobile" href="${nav.resume.href}">${nav.resume.label}</a>
+            ${sectionLinks}
+          </div>
         </div>
       </nav>
     </header>

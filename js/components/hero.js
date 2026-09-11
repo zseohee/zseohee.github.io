@@ -8,73 +8,35 @@ export function renderHero({ profile, introduction }) {
       <div class="container hero-inner">
         <div class="hero-layout">
           <div class="hero-copy">
-            <p class="hero-kicker">Portfolio</p>
-            <h1 class="hero-title">Hi, I am ${profile.name}</h1>
-            <p class="hero-role">
-              I am a
-              <span class="typewriter-text">
-                <span id="role-text">${profile.roles[0]}</span><span class="typewriter-cursor">_</span>
+            <div class="notebook-meta" aria-hidden="true">
+              <span class="notebook-meta__label">
+                <img class="hero-manipulation-doodle" src="./images/icons/manipulation.png" alt="" />
+                seohee's robotics log
               </span>
-            </p>
-            <p class="editorial-body introduction-text hero-about">${bodyText}</p>
+            </div>
+            <h1 class="hero-title">Hi, I’m ${profile.name}.</h1>
+            <p class="hero-summary">${bodyText}</p>
             <a class="text-btn" href="${profile.ctaUrl}">${profile.ctaLabel} →</a>
           </div>
-          ${
-            hasPhoto
-              ? `
-                <figure class="hero-photo">
-                  <img src="${photo}" alt="${profile.name} portrait" loading="eager" />
-                </figure>
-              `
-              : ""
-          }
+          ${hasPhoto ? `
+            <div class="hero-visual">
+              <span class="sketch-note sketch-note--beep" aria-hidden="true">beep boop!</span>
+              <figure class="hero-photo">
+                <img src="${photo}" alt="${profile.name} portrait" loading="eager" />
+                <figcaption>manipulation · vision-language-action models</figcaption>
+              </figure>
+              <div class="robot-doodle" aria-hidden="true">
+                <span class="robot-doodle__antenna"></span>
+                <span class="robot-doodle__head"><i></i><i></i></span>
+                <span class="robot-doodle__body">01</span>
+                <span class="robot-doodle__arm robot-doodle__arm--left"></span>
+                <span class="robot-doodle__arm robot-doodle__arm--right"></span>
+                <span class="robot-doodle__feet"></span>
+              </div>
+            </div>
+          ` : ""}
         </div>
       </div>
     </section>
   `
-}
-
-export function wireHeroRoles(element, words) {
-  if (!element || !words?.length) return
-
-  const typeSpeed = 70
-  const deleteSpeed = 50
-  const pause = 1200
-
-  let wordIndex = 0
-  let charIndex = 0
-  let deleting = false
-  let timerId = null
-
-  const tick = () => {
-    const word = words[wordIndex]
-
-    if (!deleting) {
-      charIndex += 1
-      element.textContent = word.slice(0, charIndex)
-
-      if (charIndex === word.length) {
-        deleting = true
-        timerId = window.setTimeout(tick, pause)
-        return
-      }
-
-      timerId = window.setTimeout(tick, typeSpeed)
-      return
-    }
-
-    charIndex -= 1
-    element.textContent = word.slice(0, charIndex)
-
-    if (charIndex === 0) {
-      deleting = false
-      wordIndex = (wordIndex + 1) % words.length
-      timerId = window.setTimeout(tick, deleteSpeed)
-      return
-    }
-
-    timerId = window.setTimeout(tick, deleteSpeed)
-  }
-
-  tick()
 }

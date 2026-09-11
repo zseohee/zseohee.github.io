@@ -13,21 +13,63 @@ function renderParagraphs(paragraphs = []) {
   return paragraphs.map(p => `<p class="editorial-body">${p}</p>`).join("")
 }
 
+function renderCaseNotes(item) {
+  const notes = [
+    ["question", item.question],
+    ["what I built", item.built],
+  ].filter(([, value]) => value)
+
+  if (!notes.length) return ""
+
+  return `
+    <dl class="case-notes">
+      ${notes
+        .map(
+          ([label, value]) => `
+            <div class="case-note">
+              <dt>${label}</dt>
+              <dd>${value}</dd>
+            </div>
+          `
+        )
+        .join("")}
+    </dl>
+  `
+}
+
+function renderMarginDoodle(item) {
+  if (item.title.includes("RIRO")) {
+    return `
+      <div class="margin-doodle margin-doodle--right item-margin-doodle spacemouse-doodle" aria-hidden="true">
+        <img src="./images/icons/spacemouse.png" alt="" />
+        <small>space mouse</small>
+      </div>
+    `
+  }
+
+  return ""
+}
+
 export function renderInDepth({ sections, inDepth }) {
-  const items = inDepth
+  const items = [...inDepth]
+    .sort((a, b) => (a.order || 99) - (b.order || 99))
     .map((item, index) => {
-      const images = getItemImages(item)
-      const carousel = renderImageCarousel(images, `indepth-${index}`)
+      const media = getItemImages(item)
+      const hasMedia = media.length > 0
+      const carousel = hasMedia ? renderImageCarousel(media, `indepth-${index}`) : ""
       const shouldCollapse = item.paragraphs.join(" ").length > 520 || item.paragraphs.length > 2
 
       return `
-        <article class="in-depth-item">
+        <article class="in-depth-item${hasMedia ? "" : " in-depth-item--text-only"}">
+          ${renderMarginDoodle(item)}
           <div class="container in-depth-layout">
-            <div class="in-depth-media">${carousel}</div>
+            ${hasMedia ? `<div class="in-depth-media">${carousel}</div>` : ""}
             <div class="in-depth-content">
               <p class="in-depth-period">${item.period}</p>
-              <h3 class="in-depth-title">${item.title}</h3>
+              <p class="in-depth-affiliation">${item.title}</p>
+              <h3 class="in-depth-title">${item.caseTitle || item.title}</h3>
               ${renderStack(item.stack)}
+              ${renderCaseNotes(item)}
               <div class="in-depth-body ${shouldCollapse ? "in-depth-body--collapsed" : ""}" data-in-depth-body>
                 ${renderParagraphs(item.paragraphs)}
               </div>
@@ -50,6 +92,7 @@ export function renderInDepth({ sections, inDepth }) {
   return `
     <section id="in-depth">
       <div class="container in-depth-section-heading">
+        <p class="section-kicker">problems I’ve worked through</p>
         <h1 class="section-title">${sections.inDepth.title}</h1>
       </div>
       <div class="in-depth-list">${items}</div>

@@ -124,7 +124,7 @@ function wireModalCarousel(modal, track, dots, getValidImages) {
   }
 }
 
-export function wireExploreModals({ activity = [], volunteering = [] }) {
+export function wireExploreModals({ activity = [] }) {
   const modal = document.getElementById("explore-modal")
   if (!modal) return
 
@@ -143,7 +143,7 @@ export function wireExploreModals({ activity = [], volunteering = [] }) {
   function openModal(item) {
     carousel.reset()
 
-    typeEl.textContent = item.type || "Volunteering"
+    typeEl.textContent = item.type || "Activity"
     titleEl.textContent = item.title
     stackEl.innerHTML = renderStack(item.stack, true)
 
@@ -183,12 +183,6 @@ export function wireExploreModals({ activity = [], volunteering = [] }) {
   document.querySelectorAll("[data-activity-index]").forEach(button => {
     button.addEventListener("click", () => {
       openModal(activity[Number(button.dataset.activityIndex)])
-    })
-  })
-
-  document.querySelectorAll("[data-volunteering-index]").forEach(button => {
-    button.addEventListener("click", () => {
-      openModal(volunteering[Number(button.dataset.volunteeringIndex)])
     })
   })
 
