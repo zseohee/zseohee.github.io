@@ -1,5 +1,11 @@
 function isPlaceholder(value) {
-  return !value || value.startsWith("#TODO")
+  if (!value) return true
+  const src = typeof value === "string" ? value : value.src
+  return !src || src.startsWith("#TODO")
+}
+
+function normalizeMedia(entry) {
+  return typeof entry === "string" ? { type: "image", src: entry } : { type: "image", ...entry }
 }
 
 function renderStack(stack = [], small = false) {
@@ -20,12 +26,28 @@ function renderSlides(images = []) {
   }
 
   return validImages
-    .map(
-      (src, index) => `
-        <div class="modal-slide" data-slide="${index}">
-          <img src="${src}" alt="Project photo ${index + 1}" loading="lazy" />
-        </div>
-      `
+    .map(normalizeMedia)
+    .map((media, index) =>
+      media.type === "video"
+        ? `
+          <div class="modal-slide modal-slide--video" data-slide="${index}" data-media-type="video">
+            <video
+              aria-label="${media.title || `Video ${index + 1}`}"
+              muted
+              loop
+              playsinline
+              controls
+              preload="${index === 0 ? "auto" : "metadata"}"
+            >
+              <source src="${media.src}" type="video/mp4" />
+            </video>
+          </div>
+        `
+        : `
+          <div class="modal-slide" data-slide="${index}">
+            <img src="${media.src}" alt="${media.alt || `Project photo ${index + 1}`}" loading="lazy" />
+          </div>
+        `
     )
     .join("")
 }
@@ -50,6 +72,7 @@ export function renderModalShell() {
           <span class="activity-type" id="modal-type"></span>
           <h2 class="explore-modal__title" id="modal-title"></h2>
           <div id="modal-stack"></div>
+          <p class="modal-lead" id="modal-lead"></p>
           <ul class="modal-bullets" id="modal-bullets"></ul>
         </div>
       </div>
@@ -82,7 +105,19 @@ function wireModalCarousel(modal, track, dots, getValidImages) {
     Array.from(dots.children).forEach((dot, index) => {
       dot.classList.toggle("is-active", index === slideIndex)
     })
+
+    slides.forEach((slide, index) => {
+      const video = slide.querySelector("video")
+      if (!video) return
+      if (index === slideIndex && modal.classList.contains("is-open")) {
+        video.play().catch(() => {})
+      } else {
+        video.pause()
+      }
+    })
   }
+
+  const isVideoSlide = () => slides[slideIndex]?.dataset.mediaType === "video"
 
   function goToSlide(index) {
     const validCount = slides.length
@@ -103,6 +138,7 @@ function wireModalCarousel(modal, track, dots, getValidImages) {
     if (!modal.classList.contains("is-open")) return
     if (slides.length <= 1) return
     if (prefersReducedMotion()) return
+    if (isVideoSlide()) return
     timer = setInterval(() => goToSlide(slideIndex + 1), AUTOPLAY_INTERVAL_MS)
   }
 
@@ -135,6 +171,7 @@ export function wireExploreModals({ activity = [] }) {
   const titleEl = document.getElementById("modal-title")
   const stackEl = document.getElementById("modal-stack")
   const bulletsEl = document.getElementById("modal-bullets")
+  const leadEl = document.getElementById("modal-lead")
 
   const carousel = wireModalCarousel(modal, track, dots, item =>
     (item.images || []).filter(img => !isPlaceholder(img))
@@ -143,9 +180,11 @@ export function wireExploreModals({ activity = [] }) {
   function openModal(item) {
     carousel.reset()
 
-    typeEl.textContent = item.type || "Activity"
+    typeEl.textContent = [item.type || "Activity", item.period].filter(Boolean).join(" · ")
     titleEl.textContent = item.title
     stackEl.innerHTML = renderStack(item.stack, true)
+    leadEl.innerHTML = item.preview || ""
+    leadEl.hidden = !item.preview
 
     bulletsEl.innerHTML = (item.bullets || [])
       .filter(bullet => !isPlaceholder(bullet))
@@ -161,7 +200,6 @@ export function wireExploreModals({ activity = [] }) {
         `<button type="button" class="modal-dot" data-dot="${i}" aria-label="Go to image ${i + 1}"></button>`
       ).join("")
       carousel.updateSlides()
-      carousel.startAutoplay()
     } else {
       mediaEl.classList.add("is-hidden")
       dots.innerHTML = ""
@@ -171,10 +209,16 @@ export function wireExploreModals({ activity = [] }) {
     modal.classList.add("is-open")
     modal.setAttribute("aria-hidden", "false")
     document.body.classList.add("modal-open")
+    if (validImages.length) {
+      carousel.updateSlides()
+      carousel.startAutoplay()
+    }
   }
 
   function closeModal() {
     carousel.stopAutoplay()
+    track.querySelectorAll("video").forEach(video => video.pause())
+    track.innerHTML = ""
     modal.classList.remove("is-open")
     modal.setAttribute("aria-hidden", "true")
     document.body.classList.remove("modal-open")

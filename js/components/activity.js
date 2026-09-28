@@ -36,6 +36,7 @@ function renderExternalLink(item) {
 function categoryFor(item) {
   if (item.type === "Research") return "research"
   if (item.type === "Experience") return "experience"
+  if (item.type === "Organization") return "organizations"
   if (item.type === "Volunteering" || item.type.includes("Leadership")) return "leadership"
   return "projects"
 }
@@ -45,6 +46,7 @@ const activityFilters = [
   { value: "research", label: "Research" },
   { value: "experience", label: "Experience" },
   { value: "projects", label: "Projects" },
+  { value: "organizations", label: "Organizations" },
   { value: "leadership", label: "Leadership & Volunteering" },
 ]
 
@@ -52,17 +54,23 @@ export function renderActivity({ sections, activity }) {
   const items = activity
     .map((item, index) => {
       const preview = item.preview || item.bullets?.[0] || ""
+      const [name, ...roleParts] = item.title.split(" - ")
+      const role = roleParts.join(" - ")
       return `
         <article class="activity-card" data-activity-category="${categoryFor(item)}">
           <div class="activity-card__body">
-            <span class="activity-type">${item.type}</span>
-            <h3>${item.title}</h3>
+            <div class="activity-card__meta">
+              <span class="activity-type">${item.type}</span>
+              ${item.period ? `<span class="activity-period">${item.period}</span>` : ""}
+            </div>
+            <h3>${name}</h3>
+            ${role ? `<p class="activity-role">${role}</p>` : ""}
             ${renderStack(item.stack)}
             <p class="activity-preview">${preview}</p>
           </div>
           <div class="activity-card__actions">
             ${
-              item.bullets?.length
+              item.bullets?.length || item.images?.length
                 ? `<button class="text-btn text-btn--sm" type="button" data-activity-index="${index}">
               Read more →
             </button>`
@@ -79,7 +87,7 @@ export function renderActivity({ sections, activity }) {
     <section class="section section--screen" id="activity">
       <div class="container">
         <p class="section-kicker">robots, tools, and useful things</p>
-        <h1 class="section-title">${sections.activity.title}</h1>
+        <h2 class="section-title">${sections.activity.title}</h2>
         <p class="activity-lede">A running archive of systems I have designed, coded, assembled, and learned from.</p>
         <div class="activity-filters" role="group" aria-label="Filter activities">
           ${activityFilters

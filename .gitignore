@@ -6,3 +6,4 @@ build
 .env.*
 *.log
 images/videos/
+images/activity/originals/
