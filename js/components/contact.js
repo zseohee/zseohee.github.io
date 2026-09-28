@@ -13,8 +13,8 @@ export function renderContact({ sections, contact, profile, nav }) {
     <section class="section section--contact" id="contact">
       <div class="container container--narrow container--center">
         <div class="footer-container">
-          <h1 class="section-title">${sections.contact.title}</h1>
-          <h2>${contact.subheading}</h2>
+          <h2 class="section-title">${sections.contact.title}</h2>
+          <p class="footer-subheading">${contact.subheading}</p>
           <a class="email-link" href="mailto:${contact.email}">${contact.email}</a>
           <a class="contact-resume-link" href="${nav.resume.href}">View resume →</a>
           <div class="social-icons">${socialIcons}</div>

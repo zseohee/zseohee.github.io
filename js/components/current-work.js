@@ -6,12 +6,21 @@ export function renderCurrentWork({ sections, currentWork = [] }) {
       item => `
         <article class="now-card">
           <div class="now-card__topline">
-            <span class="now-card__index">${item.index}</span>
-            <span class="now-card__status"><i></i> ${item.status || "now exploring"}</span>
+            <span class="now-card__status"><i aria-hidden="true"></i>Active</span>
+            <span class="now-card__period">${item.period}</span>
           </div>
-          <p class="now-card__place">${item.place}</p>
-          <h3>${item.title}</h3>
-          <p>${item.note}</p>
+          <h3 class="now-card__lab">${item.lab}</h3>
+          <p class="now-card__role">${item.role}</p>
+          <dl class="now-card__meta">
+            <div><dt>Advisor</dt><dd>${item.advisor}</dd></div>
+            <div><dt>Location</dt><dd>${item.location}</dd></div>
+          </dl>
+          <p class="now-card__desc">${item.description}</p>
+          ${
+            item.focus?.length
+              ? `<ul class="now-card__focus" aria-label="Focus areas">${item.focus.map(tag => `<li>${tag}</li>`).join("")}</ul>`
+              : ""
+          }
         </article>
       `
     )

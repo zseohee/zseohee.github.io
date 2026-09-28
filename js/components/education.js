@@ -40,7 +40,7 @@ export function renderEducation({ sections, education }) {
         <figcaption>CS + DS @ Wisconsin</figcaption>
       </figure>
       <div class="container">
-        <h1 class="section-title">${sections.education.title}</h1>
+        <h2 class="section-title">${sections.education.title}</h2>
         <div class="edu-grid">${items}</div>
       </div>
     </section>

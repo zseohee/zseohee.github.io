@@ -20,7 +20,7 @@ export function renderSkills({ sections, skills }) {
   return `
     <section class="section" id="skills">
       <div class="container container--narrow">
-        <h1 class="section-title">${sections.skills.title}</h1>
+        <h2 class="section-title">${sections.skills.title}</h2>
         <div class="skill-grid">${items}</div>
       </div>
     </section>

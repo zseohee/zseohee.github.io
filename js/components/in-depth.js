@@ -37,8 +37,16 @@ function renderCaseNotes(item) {
   `
 }
 
+function renderAffiliation(title) {
+  const [org, ...rest] = title.split(" - ")
+  const role = rest.join(" - ")
+  return role
+    ? `<span class="in-depth-org">${org}</span><span class="in-depth-role">${role}</span>`
+    : org
+}
+
 function renderMarginDoodle(item) {
-  if (item.title.includes("RIRO")) {
+  if (item.marginDoodle === "spacemouse") {
     return `
       <div class="margin-doodle margin-doodle--right item-margin-doodle spacemouse-doodle" aria-hidden="true">
         <img src="./images/icons/spacemouse.png" alt="" />
@@ -66,7 +74,7 @@ export function renderInDepth({ sections, inDepth }) {
             ${hasMedia ? `<div class="in-depth-media">${carousel}</div>` : ""}
             <div class="in-depth-content">
               <p class="in-depth-period">${item.period}</p>
-              <p class="in-depth-affiliation">${item.title}</p>
+              <p class="in-depth-affiliation">${renderAffiliation(item.title)}</p>
               <h3 class="in-depth-title">${item.caseTitle || item.title}</h3>
               ${renderStack(item.stack)}
               ${renderCaseNotes(item)}
@@ -93,7 +101,7 @@ export function renderInDepth({ sections, inDepth }) {
     <section id="in-depth">
       <div class="container in-depth-section-heading">
         <p class="section-kicker">problems I’ve worked through</p>
-        <h1 class="section-title">${sections.inDepth.title}</h1>
+        <h2 class="section-title">${sections.inDepth.title}</h2>
       </div>
       <div class="in-depth-list">${items}</div>
     </section>

@@ -1,15 +1,20 @@
-export function renderNavbar({ nav }, options = {}) {
+export function renderNavbar({ nav, profile }, options = {}) {
   const pageBase = options.pageBase ?? ""
+  const currentPage = options.currentPage ?? ""
 
   const sectionLinks = nav.links
-    .map(link => `<a class="nav-link" href="${pageBase}#${link.id}">${link.label}</a>`)
+    .map(link => {
+      const href = link.href ?? `${pageBase}#${link.id}`
+      const isCurrent = currentPage === link.id
+      return `<a class="nav-link${isCurrent ? " is-current" : ""}" href="${href}"${isCurrent ? ' aria-current="page"' : ""}>${link.label}</a>`
+    })
     .join("")
 
   return `
     <header class="site-navbar" aria-label="Main navigation">
       <nav class="navbar-wrapper">
         <div class="left-nav">
-          <a class="nav-btn" href="${nav.resume.href}">${nav.resume.label}</a>
+          <a class="nav-brand" href="${pageBase || "./index.html"}#home">${profile.name}</a>
         </div>
         <button
           class="nav-toggle"
@@ -25,8 +30,8 @@ export function renderNavbar({ nav }, options = {}) {
         </button>
         <div class="right-nav" id="nav-menu" data-nav-menu>
           <div class="links-wrapper">
-            <a class="nav-link nav-resume-mobile" href="${nav.resume.href}">${nav.resume.label}</a>
             ${sectionLinks}
+            <a class="nav-link nav-btn" href="${nav.resume.href}">${nav.resume.label}</a>
           </div>
         </div>
       </nav>

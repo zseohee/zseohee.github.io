@@ -1,7 +1,9 @@
-export function renderHero({ profile, introduction }) {
+export function renderHero({ profile, introduction, currentWork = [] }) {
   const photo = profile.aboutImage
   const hasPhoto = photo && !photo.startsWith("#TODO")
-  const bodyText = introduction?.text || profile.intro || ""
+  const lead = introduction?.lead || ""
+  const bodyText = introduction?.body || introduction?.text || profile.intro || ""
+  const labs = currentWork.map(item => item.lab).join(" & ")
 
   return `
     <section class="section section--hero" id="home">
@@ -15,8 +17,17 @@ export function renderHero({ profile, introduction }) {
               </span>
             </div>
             <h1 class="hero-title">Hi, I’m ${profile.name}.</h1>
+            ${lead ? `<p class="hero-lead">${lead}</p>` : ""}
             <p class="hero-summary">${bodyText}</p>
-            <a class="text-btn" href="${profile.ctaUrl}">${profile.ctaLabel} →</a>
+            <div class="hero-actions">
+              <a class="btn btn--primary" href="${profile.journeyUrl}">${profile.journeyLabel} <span aria-hidden="true">→</span></a>
+              <a class="btn btn--ghost" href="${profile.ctaUrl}" target="_blank" rel="noopener noreferrer">${profile.ctaLabel} <span aria-hidden="true">↗</span></a>
+            </div>
+            ${
+              labs
+                ? `<a class="hero-now" href="#now"><i aria-hidden="true"></i><span>Now</span> ${labs} · UW–Madison</a>`
+                : ""
+            }
           </div>
           ${hasPhoto ? `
             <div class="hero-visual">
