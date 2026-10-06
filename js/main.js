@@ -2,10 +2,8 @@ import { siteData } from "./data.js"
 import { applyTheme } from "./theme.js"
 import { renderNavbar, wireNavbar } from "./components/navbar.js"
 import { renderHero } from "./components/hero.js"
-import { renderCurrentWork } from "./components/current-work.js"
 import { renderInDepth, wireInDepthReadMore } from "./components/in-depth.js"
-import { renderActivity, wireActivityFilters } from "./components/activity.js"
-import { renderEducation } from "./components/education.js"
+import { renderActivity } from "./components/activity.js"
 import { renderSkills } from "./components/skills.js"
 import { renderContact } from "./components/contact.js"
 import { renderModalShell, wireExploreModals } from "./components/modal.js"
@@ -22,17 +20,14 @@ function mountApp() {
 
   document.getElementById("main").innerHTML = [
     renderHero(siteData),
-    renderCurrentWork(siteData),
     renderInDepth(siteData),
     renderActivity(siteData),
-    renderEducation(siteData),
     renderSkills(siteData),
     renderContact(siteData),
     renderModalShell(),
   ].join("")
 
   wireExploreModals({ activity: siteData.activity })
-  wireActivityFilters()
   wireImageCarousels()
   wireInDepthReadMore()
   wireNavbar()
