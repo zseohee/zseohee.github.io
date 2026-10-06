@@ -14,10 +14,7 @@ function renderParagraphs(paragraphs = []) {
 }
 
 function renderCaseNotes(item) {
-  const notes = [
-    ["question", item.question],
-    ["what I built", item.built],
-  ].filter(([, value]) => value)
+  const notes = [["question", item.question]].filter(([, value]) => value)
 
   if (!notes.length) return ""
 
@@ -45,19 +42,6 @@ function renderAffiliation(title) {
     : org
 }
 
-function renderMarginDoodle(item) {
-  if (item.marginDoodle === "spacemouse") {
-    return `
-      <div class="margin-doodle margin-doodle--right item-margin-doodle spacemouse-doodle" aria-hidden="true">
-        <img src="./images/icons/spacemouse.png" alt="" />
-        <small>space mouse</small>
-      </div>
-    `
-  }
-
-  return ""
-}
-
 export function renderInDepth({ sections, inDepth }) {
   const items = [...inDepth]
     .sort((a, b) => (a.order || 99) - (b.order || 99))
@@ -66,14 +50,14 @@ export function renderInDepth({ sections, inDepth }) {
       const hasMedia = media.length > 0
       const carousel = hasMedia ? renderImageCarousel(media, `indepth-${index}`) : ""
       const shouldCollapse = item.paragraphs.join(" ").length > 520 || item.paragraphs.length > 2
+      const isCurrent = /Present/.test(item.period)
 
       return `
         <article class="in-depth-item${hasMedia ? "" : " in-depth-item--text-only"}">
-          ${renderMarginDoodle(item)}
           <div class="container in-depth-layout">
             ${hasMedia ? `<div class="in-depth-media">${carousel}</div>` : ""}
             <div class="in-depth-content">
-              <p class="in-depth-period">${item.period}</p>
+              <p class="in-depth-period">${isCurrent ? `<span class="in-depth-now"><i aria-hidden="true"></i>Now</span>` : ""}${item.period}</p>
               <p class="in-depth-affiliation">${renderAffiliation(item.title)}</p>
               <h3 class="in-depth-title">${item.caseTitle || item.title}</h3>
               ${renderStack(item.stack)}
@@ -100,7 +84,6 @@ export function renderInDepth({ sections, inDepth }) {
   return `
     <section id="in-depth">
       <div class="container in-depth-section-heading">
-        <p class="section-kicker">problems I’ve worked through</p>
         <h2 class="section-title">${sections.inDepth.title}</h2>
       </div>
       <div class="in-depth-list">${items}</div>

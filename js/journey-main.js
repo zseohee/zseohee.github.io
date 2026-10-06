@@ -2,10 +2,6 @@ import { siteData } from "./data.js"
 import { applyTheme } from "./theme.js"
 import { renderNavbar, wireNavbar } from "./components/navbar.js"
 
-function renderTags(items) {
-  return items.map(item => `<li>${item}</li>`).join("")
-}
-
 function renderStage(stage, index, total) {
   const bridge = index < total - 1
     ? `
@@ -24,7 +20,6 @@ function renderStage(stage, index, total) {
       <div class="journey-card">
         <div class="journey-card__heading">
           <div>
-            <p class="journey-card__label">${stage.label}</p>
             <p class="journey-card__org">${stage.organization}</p>
             <h2>${stage.title}</h2>
           </div>
@@ -33,17 +28,11 @@ function renderStage(stage, index, total) {
           <span>Research question</span>
           <p>${stage.question}</p>
         </div>
-        <div class="journey-card__body">
-          <div class="journey-card__narrative">
-            <p>${stage.narrative}</p>
-            <div class="journey-insight">
-              <span>What I learned</span>
-              <p>${stage.takeaway}</p>
-            </div>
-          </div>
-          <div class="journey-card__work">
-            <p>Work &amp; methods</p>
-            <ul>${renderTags(stage.work)}</ul>
+        <div class="journey-card__narrative">
+          <p>${stage.narrative}</p>
+          <div class="journey-insight">
+            <span>What I learned</span>
+            <p>${stage.takeaway}</p>
           </div>
         </div>
       </div>
@@ -60,13 +49,11 @@ function renderJourney({ journey }) {
         <p class="journey-eyebrow">${journey.eyebrow}</p>
         <h1>${journey.title}</h1>
         <p class="journey-intro">${journey.introduction}</p>
-        <p class="journey-purpose">${journey.pagePurpose}</p>
         <div class="journey-prelude">
           <p class="journey-prelude__label">${journey.preludeLabel}</p>
           <div class="journey-prelude__grid">
             <aside class="journey-origin" aria-label="The origin of my research interests">
               <div class="journey-origin__copy">
-                <p class="journey-origin__eyebrow">${journey.origin.eyebrow}</p>
                 <h2>${journey.origin.title}</h2>
                 <p>${journey.origin.text}</p>
               </div>
@@ -77,7 +64,6 @@ function renderJourney({ journey }) {
             </aside>
             <aside class="journey-pause" aria-label="A deliberate pause from school">
               <div>
-                <p class="journey-pause__eyebrow">${journey.pause.eyebrow}</p>
                 <h2>${journey.pause.title}</h2>
                 <p>${journey.pause.text}</p>
               </div>
@@ -117,7 +103,6 @@ function renderJourney({ journey }) {
             </div>
           `).join("")}
         </div>
-        <p class="journey-thesis">multimodal perception <i>×</i> robot learning <i>×</i> physical systems</p>
         <a class="btn btn--primary" href="./index.html#contact">Let’s talk about robots <span aria-hidden="true">→</span></a>
       </div>
     </section>

@@ -1,9 +1,8 @@
-export function renderHero({ profile, introduction, currentWork = [] }) {
+export function renderHero({ profile, introduction }) {
   const photo = profile.aboutImage
   const hasPhoto = photo && !photo.startsWith("#TODO")
   const lead = introduction?.lead || ""
   const bodyText = introduction?.body || introduction?.text || profile.intro || ""
-  const labs = currentWork.map(item => item.lab).join(" & ")
 
   return `
     <section class="section section--hero" id="home">
@@ -12,7 +11,6 @@ export function renderHero({ profile, introduction, currentWork = [] }) {
           <div class="hero-copy">
             <div class="notebook-meta" aria-hidden="true">
               <span class="notebook-meta__label">
-                <img class="hero-manipulation-doodle" src="./images/icons/manipulation.png" alt="" />
                 seohee's robotics log
               </span>
             </div>
@@ -21,17 +19,10 @@ export function renderHero({ profile, introduction, currentWork = [] }) {
             <p class="hero-summary">${bodyText}</p>
             <div class="hero-actions">
               <a class="btn btn--primary" href="${profile.journeyUrl}">${profile.journeyLabel} <span aria-hidden="true">→</span></a>
-              <a class="btn btn--ghost" href="${profile.ctaUrl}" target="_blank" rel="noopener noreferrer">${profile.ctaLabel} <span aria-hidden="true">↗</span></a>
             </div>
-            ${
-              labs
-                ? `<a class="hero-now" href="#now"><i aria-hidden="true"></i><span>Now</span> ${labs} · UW–Madison</a>`
-                : ""
-            }
           </div>
           ${hasPhoto ? `
             <div class="hero-visual">
-              <span class="sketch-note sketch-note--beep" aria-hidden="true">beep boop!</span>
               <figure class="hero-photo">
                 <img src="${photo}" alt="${profile.name} portrait" loading="eager" />
                 <figcaption>manipulation · vision-language-action models</figcaption>
